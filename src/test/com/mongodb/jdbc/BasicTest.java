@@ -5,25 +5,31 @@ package com.mongodb.jdbc;
 import com.mongodb.*;
 import org.testng.annotations.Test;
 
-public class BasicTest {
+public class BasicTest extends Base {
     
-    final Mongo _mongo;
-    final DB _db;
     final MongoDriver _driver;
     
-    public BasicTest()
-        throws java.net.UnknownHostException {
-        _mongo = new Mongo();
-        _db = _mongo.getDB( "jdbctest" );
+    public BasicTest(){
         _driver = new MongoDriver( _db );
     }
     
     @Test
     public void test1()
         throws Exception {
-        System.out.println( _driver.query( "select * from foo" ).toArray() );
-        System.out.println( _driver.query( "select a,b from foo" ).toArray() );
-        System.out.println( _driver.query( "select a,b from foo where x=3" ).toArray() );
+        String name = "simple.test1";
+        DBCollection c = _db.getCollection( name );
+        c.drop();
+        
+        for ( int i=1; i<=3; i++ ){
+            c.insert( BasicDBObjectBuilder.start( "a" , i ).add( "b" , i ).add( "x" , i ).get() );
+        }
+        
+        DBObject empty = new BasicDBObject();
+        DBObject ab = BasicDBObjectBuilder.start( "a" , 1 ).add( "b" , 1 ).get();
+        
+        assertEquals( c.find().toArray() , _driver.query( "select * from " + name ).toArray() );
+        assertEquals( c.find( empty , ab ).toArray(), _driver.query( "select a,b from " + name ).toArray() );
+        assertEquals( c.find( new BasicDBObject( "x" , 3 ) , ab ).toArray() , _driver.query( "select a,b from " + name + " where x=3" ).toArray() );
 
     }
 }

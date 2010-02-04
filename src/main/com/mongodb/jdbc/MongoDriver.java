@@ -8,6 +8,8 @@ import com.mongodb.*;
 
 public class MongoDriver {
 
+    static final boolean D = false;
+
     public MongoDriver( DB db ){
         _db = db;
     }
@@ -16,6 +18,8 @@ public class MongoDriver {
 
     DBCursor query( String sql )
         throws Exception {
+        if ( D ) System.out.println( sql );
+        
         ZStatement st = parse( sql );
         if ( ! ( st instanceof ZQuery ) )
             throw new IllegalArgumentException( "not a query sql statement" );
@@ -47,8 +51,8 @@ public class MongoDriver {
             
         }
         
-        System.out.println( "\t" + "fields: " + fields );
-        System.out.println( "\t" + "query : " + query );
+        if ( D ) System.out.println( "\t" + "fields: " + fields );
+        if ( D ) System.out.println( "\t" + "query : " + query );
 
         DBCursor c = coll.find( query , fields );
 
