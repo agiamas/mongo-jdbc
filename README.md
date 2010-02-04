@@ -6,8 +6,7 @@ http://github.com/erh/mongo-jdbc/
 
 In testing right now.
 
-TODO:
------------
+### TODO
  - tests for select
  - hook into full jdbc engine
  - insert
