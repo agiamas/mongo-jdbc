@@ -15,6 +15,7 @@ public class MongoResultSet implements ResultSet {
 
     MongoResultSet( DBCursor cursor ){
         _cursor = cursor;
+        _fields.init( cursor.getKeysWanted() );
     }
 
     public void clearWarnings(){
@@ -140,12 +141,6 @@ public class MongoResultSet implements ResultSet {
     public boolean rowUpdated(){
         throw new UnsupportedOperationException();
     }
-
-    public boolean next(){
-        TODO();
-        return true;
-    }
-
 
     // modifications
 
@@ -619,6 +614,16 @@ public class MongoResultSet implements ResultSet {
         throw new UnsupportedOperationException();
     }
 
+    // moving throgh cursor
+    
+    public boolean next(){
+        if ( ! _cursor.hasNext() ){
+            return false;
+        }
+        _cur = _cursor.next();
+        return true;
+    }
+
     // members
 
     final DBCursor _cursor;
@@ -627,7 +632,14 @@ public class MongoResultSet implements ResultSet {
     int _row = 0;
     boolean _closed = false;
 
-    static class FieldLookup {
+    class FieldLookup {
+
+        void init( DBObject o ){
+            if ( o == null )
+                return;
+            for ( String key : o.keySet() )
+                get( key );
+        }
         
         int get( String s ){
             Integer i = _strings.get(s);
@@ -640,10 +652,15 @@ public class MongoResultSet implements ResultSet {
         
         String get( int i ){
             String s = _ids.get(i);
-            if ( s == null ){
-                throw new RuntimeException( "don't know how to do this yet" );
-            }
-            return s;
+            if ( s != null )
+                return s;
+            
+            init( _cur );
+            
+            s = _ids.get(i);
+            if ( s != null )
+                return s;
+            throw new IllegalArgumentException( i + " is not a valid column id" );
         }
         
         void _store( Integer i , String s ){
@@ -655,9 +672,5 @@ public class MongoResultSet implements ResultSet {
         final Map<String,Integer> _strings = new HashMap<String,Integer>();
     }
 
-    
-    static void TODO(){
-        throw new RuntimeException( "TODO" );
-    }
 
 }
