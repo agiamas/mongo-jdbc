@@ -2,6 +2,8 @@
 Mongo JDBC Driver
 ===========
 
+http://github.com/erh/mongo-jdbc/
+
 In testing right now.
 
 TODO:
