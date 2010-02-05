@@ -43,6 +43,15 @@ public class Executor {
 
         DBCursor c = coll.find( query , fields );
 
+        if ( q.getOrderBy() != null ){
+            BasicDBObject order = new BasicDBObject();
+            for ( int i=0; i<q.getOrderBy().size(); i++ ){
+                ZOrderBy f = (ZOrderBy)(q.getOrderBy().get(i));
+                order.put( f.getExpression().toString() , f.getAscOrder() ? 1 : -1 );
+            }
+            c.sort( order );
+        }
+
         return c;
     }
 

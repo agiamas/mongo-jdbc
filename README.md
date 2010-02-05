@@ -9,6 +9,7 @@ In testing right now.
 ### Supported
  - basic select
    - field selector
+   - order by
  - basic insert
  - basic update
 
