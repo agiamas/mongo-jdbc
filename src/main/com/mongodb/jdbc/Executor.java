@@ -53,6 +53,39 @@ public class Executor {
         return c;
     }
 
+    static int writeop( DB db , String sql )
+        throws MongoSQLException {
+        
+        if ( D ) System.out.println( sql );
+        
+        ZStatement st = parse( sql );
+        if ( st instanceof ZInsert )
+            return insert( db , (ZInsert)st );
+        
+        throw new RuntimeException( "unknown write: " + st.getClass().toString() );
+    }
+
+    static int insert( DB db , ZInsert in )
+        throws MongoSQLException {
+
+        if ( in.getColumns() == null )
+            throw new MongoSQLException.BadSQL( "have to give column names to insert" );
+        
+        if ( in.getColumns().size() != in.getValues().size() )
+            throw new MongoSQLException.BadSQL( "number of values and columns have to match" );
+        
+        BasicDBObject o = new BasicDBObject();
+        for ( int i=0; i<in.getColumns().size(); i++ ){
+            Object c = in.getColumns().get(i);
+            Object v = in.getValues().get(i);
+            o.put( c.toString() , toConstant( (ZExp)v ) );
+        }
+        
+        DBCollection coll = db.getCollection( in.getTable() );
+        coll.insert( o );
+        return 1;
+    }
+
     // ---- helpers -----
 
     static Object toConstant( ZExp e ){
