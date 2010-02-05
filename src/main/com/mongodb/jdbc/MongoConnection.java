@@ -9,6 +9,10 @@ import com.mongodb.*;
 
 public class MongoConnection implements Connection {
 
+    public MongoConnection( DB db ){
+        _db = db;
+    }
+
     public SQLWarning getWarnings(){
         throw new RuntimeException( "should do get last error" );
     }
@@ -21,7 +25,6 @@ public class MongoConnection implements Connection {
     
     public void close(){
         _db = null;
-        _mongo = null;
     }
 
     public boolean isClosed(){
@@ -156,7 +159,7 @@ public class MongoConnection implements Connection {
         return createStatement( resultSetType , resultSetConcurrency, 0 );
     }
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability){
-        throw new RuntimeException( "can't createStatement yet" );
+        return new MongoStatement( this , resultSetType , resultSetConcurrency , resultSetHoldability );
     }
     
     // --- CallableStatement
@@ -209,7 +212,6 @@ public class MongoConnection implements Connection {
         throw new UnsupportedOperationException();
     }
 
-    private Mongo _mongo;
-    private DB _db;
-    private Properties _clientInfo;
+    DB _db;
+    Properties _clientInfo;
 }

@@ -6,6 +6,7 @@
     <classes>
       <class name="com.mongodb.jdbc.BasicTest"/>
       <class name="com.mongodb.jdbc.MongoResultSetTest"/>
+      <class name="com.mongodb.jdbc.MongoConnectionTest"/>
     </classes>
   </test>
 

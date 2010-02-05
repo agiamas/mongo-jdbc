@@ -7,10 +7,8 @@ import org.testng.annotations.Test;
 
 public class BasicTest extends Base {
     
-    final MongoDriver _driver;
     
     public BasicTest(){
-        _driver = new MongoDriver( _db );
     }
     
     @Test
@@ -27,9 +25,9 @@ public class BasicTest extends Base {
         DBObject empty = new BasicDBObject();
         DBObject ab = BasicDBObjectBuilder.start( "a" , 1 ).add( "b" , 1 ).get();
         
-        assertEquals( c.find().toArray() , _driver.query( "select * from " + name ).toArray() );
-        assertEquals( c.find( empty , ab ).toArray(), _driver.query( "select a,b from " + name ).toArray() );
-        assertEquals( c.find( new BasicDBObject( "x" , 3 ) , ab ).toArray() , _driver.query( "select a,b from " + name + " where x=3" ).toArray() );
+        assertEquals( c.find().toArray() , Executor.query( _db , "select * from " + name ).toArray() );
+        assertEquals( c.find( empty , ab ).toArray(), Executor.query( _db , "select a,b from " + name ).toArray() );
+        assertEquals( c.find( new BasicDBObject( "x" , 3 ) , ab ).toArray() , Executor.query( _db , "select a,b from " + name + " where x=3" ).toArray() );
 
     }
 }
