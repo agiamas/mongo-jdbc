@@ -63,6 +63,29 @@
     </jar>
   </target>
 
+  <target name="zip" description="create zip">
+
+    <tstamp>  
+      <format property="timenow" pattern="yyyyMMdd" />  
+    </tstamp>  
+
+    <exec executable="git">
+      <arg value="archive" />
+
+      <arg value="--format" />
+      <arg value="zip" />
+
+      <arg value="--output" />
+      <arg value="mongo-jdbc-${timenow}.zip" />
+      
+      <arg value="--prefix" />
+      <arg value="mongo-jdbc-${timenow}/" />
+
+      <arg value="master" />
+    </exec>
+
+  </target>
+
   <!-- - - - - - - - - - - - - - - - - - - - - - -->
   <!--  test stuff                               -->
   <!-- - - - - - - - - - - - - - - - - - - - - - -->
