@@ -1,4 +1,4 @@
-// MongoSQLConnection.java
+// MongoConnection.java
 
 package com.mongodb.jdbc;
 
@@ -7,7 +7,7 @@ import java.util.*;
 
 import com.mongodb.*;
 
-public class MongoSQLConnection implements Connection {
+public class MongoConnection implements Connection {
 
     public SQLWarning getWarnings(){
         throw new RuntimeException( "should do get last error" );
