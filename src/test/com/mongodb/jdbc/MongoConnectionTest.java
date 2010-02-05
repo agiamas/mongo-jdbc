@@ -58,7 +58,7 @@ public class MongoConnectionTest extends Base {
     public void testBasic2()
         throws SQLException {
         
-        String name = "conn.basic1";
+        String name = "conn.basic2";
         DBCollection coll = _db.getCollection( name );
         coll.drop();
 
