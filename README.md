@@ -8,9 +8,10 @@ In testing right now.
 
 ### Supported
  - basic select
+   - field selector
  - basic insert
+ - basic update
 
 ### TODO
  - insert & getLastError
- - update
  - drop

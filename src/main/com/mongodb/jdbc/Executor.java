@@ -4,6 +4,7 @@ package com.mongodb.jdbc;
 
 import Zql.*;
 import java.io.*;
+import java.util.*;
 import com.mongodb.*;
 
 public class Executor {
@@ -35,15 +36,7 @@ public class Executor {
             }
         }
         
-        BasicDBObject query = new BasicDBObject();
-        if ( q.getWhere() != null ){
-            if ( ! ( q.getWhere() instanceof ZExpression ) )
-                throw new RuntimeException( "don't know how to handle where except ZExpression" );
-            
-            ZExpression e = (ZExpression)q.getWhere();
-            appendOperator( query , e );
-            
-        }
+        DBObject query = parseWhere( q.getWhere() );
         
         if ( D ) System.out.println( "\t" + "fields: " + fields );
         if ( D ) System.out.println( "\t" + "query : " + query );
@@ -61,10 +54,12 @@ public class Executor {
         ZStatement st = parse( sql );
         if ( st instanceof ZInsert )
             return insert( db , (ZInsert)st );
-        
+        else if ( st instanceof ZUpdate )
+            return update( db , (ZUpdate)st );
+
         throw new RuntimeException( "unknown write: " + st.getClass().toString() );
     }
-
+    
     static int insert( DB db , ZInsert in )
         throws MongoSQLException {
 
@@ -83,10 +78,44 @@ public class Executor {
         
         DBCollection coll = db.getCollection( in.getTable() );
         coll.insert( o );
-        return 1;
+        return 1; // TODO
+    }
+
+    static int update( DB db , ZUpdate up )
+        throws MongoSQLException {
+        
+        DBObject query = parseWhere( up.getWhere() );
+        
+        BasicDBObject set = new BasicDBObject();
+        Set<Map.Entry> changes = up.getSet().entrySet();
+        for ( Map.Entry e : changes ){
+            Object k = e.getKey();
+            Object v = e.getValue();
+            set.put( k.toString() , toConstant( (ZExp)v ) );
+        }
+
+        DBObject mod = new BasicDBObject( "$set" , set );
+
+        DBCollection coll = db.getCollection( up.getTable() );
+        coll.update( query , mod );
+        return 1; // TODO
     }
 
     // ---- helpers -----
+
+    static DBObject parseWhere( ZExp where ){
+        BasicDBObject query = new BasicDBObject();
+        if ( where == null )
+            return query;
+        
+        if ( ! ( where instanceof ZExpression ) )
+            throw new RuntimeException( "don't know how to handle where except ZExpression" );
+        
+        ZExpression e = (ZExpression)where;
+        appendOperator( query , e );
+        
+        return query;
+    }
 
     static Object toConstant( ZExp e ){
         if ( ! ( e instanceof ZConstant ) )
