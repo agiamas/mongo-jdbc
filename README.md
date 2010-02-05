@@ -8,9 +8,9 @@ In testing right now.
 
 ### Supported
  - basic select
+ - basic insert
 
 ### TODO
- - tests for select
- - hook into full jdbc engine
- - insert
+ - insert & getLastError
  - update
+ - drop
