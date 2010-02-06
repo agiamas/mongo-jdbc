@@ -215,6 +215,14 @@ public class MongoConnection implements Connection {
         throw new UnsupportedOperationException();
     }
 
+    public DB getDB(){
+        return _db;
+    }
+
+    public DBCollection getCollection( String name ){
+        return _db.getCollection( name );
+    }
+    
     DB _db;
     Properties _clientInfo;
 }

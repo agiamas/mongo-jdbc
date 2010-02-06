@@ -120,6 +120,11 @@
       <classpath refid="classpath"/>
     </java>
 
+    <java classname="blog">
+      <classpath refid="classpath"/>
+    </java>
+
+
   </target>
 
 </project>
