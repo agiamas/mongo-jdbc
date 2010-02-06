@@ -7,12 +7,15 @@ http://github.com/erh/mongo-jdbc/
 In testing right now.
 
 ### Supported
- - basic select
+ - SELECT
    - field selector
    - order by
- - basic insert
- - basic update
+ - INSERT
+ - UPDATE
+   - basics
+ - DROP
 
 ### TODO
  - insert & getLastError
- - drop
+ - embedded objects
+ - prepared statements
