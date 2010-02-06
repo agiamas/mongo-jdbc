@@ -167,7 +167,41 @@ public class MongoConnectionTest extends Base {
 
         final String name = "connprepare1";
 
-        PreparedStatement ps = _conn.prepareStatement( "insert into " + name + " ( a , b ) values ( ? , ? ) " );
+        Statement stmt = _conn.createStatement();
+        
+        stmt.executeUpdate( "drop table " + name );
+        
+        PreparedStatement ps = _conn.prepareStatement( "insert into " + name + " ( x , y ) values ( ? , ? )" );
+        ps.setInt( 1 , 1 );
+        ps.setString( 2 , "foo" );
+        ps.executeUpdate();
+        ps.setInt( 1 , 2 );
+        ps.setString( 2 , "bar" );
+        ps.executeUpdate();
+
+        
+        ResultSet res = stmt.executeQuery( "select * from " + name + " order by x" );
+        assertTrue( res.next() );
+        assertEquals( 1 , res.getInt("x" ) );
+        assertEquals( "foo" , res.getString("y" ) );
+        assertTrue( res.next() );
+        assertEquals( 2 , res.getInt("x" ) );
+        assertEquals( "bar" , res.getString("y" ) );
+        assertFalse( res.next() );
+        res.close();
+        
+        stmt.executeUpdate( "update " + name + " set x=3 where y='foo' " );
+        res = stmt.executeQuery( "select * from " + name + " order by x" );
+        assertTrue( res.next() );
+        assertEquals( 2 , res.getInt("x" ) );
+        assertEquals( "bar" , res.getString("y" ) );
+        assertTrue( res.next() );
+        assertEquals( 3 , res.getInt("x" ) );
+        assertEquals( "foo" , res.getString("y" ) );
+        assertFalse( res.next() );
+        res.close();
+        
+        stmt.close();
 
     }
     

@@ -13,9 +13,11 @@ import com.mongodb.*;
 
 public class MongoPreparedStatement extends MongoStatement implements PreparedStatement {
 
-    MongoPreparedStatement( MongoConnection conn , int type, int concurrency, int holdability , String sql ){
+    MongoPreparedStatement( MongoConnection conn , int type, int concurrency, int holdability , String sql )
+        throws MongoSQLException {
         super( conn , type , concurrency , holdability );
         _sql = sql;
+        _exec = new Executor( conn._db , sql );
     }
 
     public void addBatch(){
@@ -45,64 +47,74 @@ public class MongoPreparedStatement extends MongoStatement implements PreparedSt
         throw new RuntimeException( "executeQuery not done" );
     }
     
-    public int executeUpdate(){
-        throw new RuntimeException( "executeUpdate not done" );
+    public int executeUpdate()
+        throws MongoSQLException {
+        _exec.setParams( _params );
+        return _exec.writeop();
     }
 
     // ---- setters -----
 
-    public void setArray(int parameterIndex, Array x){ _setnotdone(); }
-    public void setAsciiStream(int parameterIndex, InputStream x){ _setnotdone(); } 
-    public void setAsciiStream(int parameterIndex, InputStream x, int length){ _setnotdone(); } 
-    public void setAsciiStream(int parameterIndex, InputStream x, long length){ _setnotdone(); } 
-    public void setBigDecimal(int parameterIndex, BigDecimal x){ _setnotdone(); } 
-    public void setBinaryStream(int parameterIndex, InputStream x){ _setnotdone(); } 
-    public void setBinaryStream(int parameterIndex, InputStream x, int length){ _setnotdone(); } 
-    public void setBinaryStream(int parameterIndex, InputStream x, long length){ _setnotdone(); } 
-    public void setBlob(int parameterIndex, Blob x){ _setnotdone(); } 
-    public void setBlob(int parameterIndex, InputStream inputStream){ _setnotdone(); } 
-    public void setBlob(int parameterIndex, InputStream inputStream, long length){ _setnotdone(); } 
-    public void setBoolean(int parameterIndex, boolean x){ _setnotdone(); } 
-    public void setByte(int parameterIndex, byte x){ _setnotdone(); } 
-    public void setBytes(int parameterIndex, byte[] x){ _setnotdone(); } 
-    public void setCharacterStream(int parameterIndex, Reader reader){ _setnotdone(); } 
-    public void setCharacterStream(int parameterIndex, Reader reader, int length){ _setnotdone(); } 
-    public void setCharacterStream(int parameterIndex, Reader reader, long length){ _setnotdone(); } 
-    public void setClob(int parameterIndex, Clob x){ _setnotdone(); } 
-    public void setClob(int parameterIndex, Reader reader){ _setnotdone(); } 
-    public void setClob(int parameterIndex, Reader reader, long length){ _setnotdone(); } 
-    public void setDate(int parameterIndex, Date x){ _setnotdone(); } 
-    public void setDate(int parameterIndex, Date x, Calendar cal){ _setnotdone(); } 
-    public void setDouble(int parameterIndex, double x){ _setnotdone(); } 
-    public void setFloat(int parameterIndex, float x){ _setnotdone(); } 
-    public void setInt(int parameterIndex, int x){ _setnotdone(); } 
-    public void setLong(int parameterIndex, long x){ _setnotdone(); } 
-    public void setNCharacterStream(int parameterIndex, Reader value){ _setnotdone(); } 
-    public void setNCharacterStream(int parameterIndex, Reader value, long length){ _setnotdone(); } 
-    public void setNClob(int parameterIndex, NClob value){ _setnotdone(); } 
-    public void setNClob(int parameterIndex, Reader reader){ _setnotdone(); } 
-    public void setNClob(int parameterIndex, Reader reader, long length){ _setnotdone(); } 
-    public void setNString(int parameterIndex, String value){ _setnotdone(); } 
-    public void setNull(int parameterIndex, int sqlType){ _setnotdone(); } 
-    public void setNull(int parameterIndex, int sqlType, String typeName){ _setnotdone(); } 
-    public void setObject(int parameterIndex, Object x){ _setnotdone(); } 
-    public void setObject(int parameterIndex, Object x, int targetSqlType){ _setnotdone(); } 
-    public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength){ _setnotdone(); } 
-    public void setRef(int parameterIndex, Ref x){ _setnotdone(); } 
-    public void setRowId(int parameterIndex, RowId x){ _setnotdone(); } 
-    public void setShort(int parameterIndex, short x){ _setnotdone(); } 
-    public void setSQLXML(int parameterIndex, SQLXML xmlObject){ _setnotdone(); } 
-    public void setString(int parameterIndex, String x){ _setnotdone(); } 
-    public void setTime(int parameterIndex, Time x){ _setnotdone(); } 
-    public void setTime(int parameterIndex, Time x, Calendar cal){ _setnotdone(); } 
-    public void setTimestamp(int parameterIndex, Timestamp x){ _setnotdone(); } 
-    public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal){ _setnotdone(); } 
-    public void setUnicodeStream(int parameterIndex, InputStream x, int length){ _setnotdone(); } 
-    public void setURL(int parameterIndex, URL x){ _setnotdone(); } 
+    public void setArray(int idx, Array x){ _setnotdone(); }
+    public void setAsciiStream(int idx, InputStream x){ _setnotdone(); } 
+    public void setAsciiStream(int idx, InputStream x, int length){ _setnotdone(); } 
+    public void setAsciiStream(int idx, InputStream x, long length){ _setnotdone(); } 
+    public void setBigDecimal(int idx, BigDecimal x){ _setnotdone(); } 
+    public void setBinaryStream(int idx, InputStream x){ _setnotdone(); } 
+    public void setBinaryStream(int idx, InputStream x, int length){ _setnotdone(); } 
+    public void setBinaryStream(int idx, InputStream x, long length){ _setnotdone(); } 
+    public void setBlob(int idx, Blob x){ _setnotdone(); } 
+    public void setBlob(int idx, InputStream inputStream){ _setnotdone(); } 
+    public void setBlob(int idx, InputStream inputStream, long length){ _setnotdone(); } 
+    public void setBoolean(int idx, boolean x){ _setnotdone(); } 
+    public void setByte(int idx, byte x){ _setnotdone(); } 
+    public void setBytes(int idx, byte[] x){ _setnotdone(); } 
+    public void setCharacterStream(int idx, Reader reader){ _setnotdone(); } 
+    public void setCharacterStream(int idx, Reader reader, int length){ _setnotdone(); } 
+    public void setCharacterStream(int idx, Reader reader, long length){ _setnotdone(); } 
+    public void setClob(int idx, Clob x){ _setnotdone(); } 
+    public void setClob(int idx, Reader reader){ _setnotdone(); } 
+    public void setClob(int idx, Reader reader, long length){ _setnotdone(); } 
+    public void setDate(int idx, Date x){ _setnotdone(); } 
+    public void setDate(int idx, Date x, Calendar cal){ _setnotdone(); } 
+    public void setDouble(int idx, double x){ _setnotdone(); } 
+    public void setFloat(int idx, float x){ _setnotdone(); } 
+    public void setInt(int idx, int x){ _set( idx , x ); } 
+    public void setLong(int idx, long x){ _set( idx , x ); } 
+    public void setNCharacterStream(int idx, Reader value){ _setnotdone(); } 
+    public void setNCharacterStream(int idx, Reader value, long length){ _setnotdone(); } 
+    public void setNClob(int idx, NClob value){ _setnotdone(); } 
+    public void setNClob(int idx, Reader reader){ _setnotdone(); } 
+    public void setNClob(int idx, Reader reader, long length){ _setnotdone(); } 
+    public void setNString(int idx, String value){ _setnotdone(); } 
+    public void setNull(int idx, int sqlType){ _setnotdone(); } 
+    public void setNull(int idx, int sqlType, String typeName){ _setnotdone(); } 
+    public void setObject(int idx, Object x){ _set( idx , x ); }
+    public void setObject(int idx, Object x, int targetSqlType){ _setnotdone(); } 
+    public void setObject(int idx, Object x, int targetSqlType, int scaleOrLength){ _setnotdone(); } 
+    public void setRef(int idx, Ref x){ _setnotdone(); } 
+    public void setRowId(int idx, RowId x){ _setnotdone(); } 
+    public void setShort(int idx, short x){ _set( idx , x ); }
+    public void setSQLXML(int idx, SQLXML xmlObject){ _setnotdone(); } 
+    public void setString(int idx, String x){ _set( idx , x ); } 
+    public void setTime(int idx, Time x){ _setnotdone(); } 
+    public void setTime(int idx, Time x, Calendar cal){ _setnotdone(); } 
+    public void setTimestamp(int idx, Timestamp x){ _setnotdone(); } 
+    public void setTimestamp(int idx, Timestamp x, Calendar cal){ _setnotdone(); } 
+    public void setUnicodeStream(int idx, InputStream x, int length){ _setnotdone(); } 
+    public void setURL(int idx, URL x){ _setnotdone(); } 
 
     void _setnotdone(){
         throw new UnsupportedOperationException( "setter not done" );
     }
-
+    
+    void _set( int idx , Object o ){
+        while ( _params.size() <= idx )
+            _params.add( null );
+        _params.set( idx , o );
+    }
+    
     final String _sql;
+    final Executor _exec;
+    List _params = new ArrayList();
 }

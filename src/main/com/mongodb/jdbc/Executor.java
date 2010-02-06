@@ -29,7 +29,11 @@ public class Executor {
 
         if ( D ) System.out.println( sql );
     }
-    
+
+    void setParams( List params ){
+        _pos = 1;
+        _params = params;
+    }
 
     DBCursor query()
         throws MongoSQLException {
@@ -172,7 +176,10 @@ public class Executor {
             return ((LongValue)e).getValue();
         else if ( e instanceof NullValue )
             return null;
-        throw new UnsupportedOperationException( "can't turn [" + e + "] into constant " );
+        else if ( e instanceof JdbcParameter )
+            return _params.get( _pos++ );
+                 
+        throw new UnsupportedOperationException( "can't turn [" + e + "] " + e.getClass().getName() + " into constant " );
     }
 
 
@@ -216,4 +223,6 @@ public class Executor {
     final String _sql;
     final Statement _statement;
     
+    List _params;
+    int _pos;
 }
