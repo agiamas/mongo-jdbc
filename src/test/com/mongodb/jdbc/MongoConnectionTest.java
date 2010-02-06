@@ -160,5 +160,15 @@ public class MongoConnectionTest extends Base {
         res.close();
     }
 
+
+    @Test
+    public void testPrepared1()
+        throws SQLException {
+
+        final String name = "connprepare1";
+
+        PreparedStatement ps = _conn.prepareStatement( "insert into " + name + " ( a , b ) values ( ? , ? ) " );
+
+    }
     
 }

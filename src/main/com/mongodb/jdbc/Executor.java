@@ -21,15 +21,22 @@ public class Executor {
 
     static final boolean D = false;
 
-    static DBCursor query( DB db , String sql )
+    Executor( DB db , String sql )
         throws MongoSQLException {
+        _db = db;
+        _sql = sql;
+        _statement = parse( sql );
+
         if ( D ) System.out.println( sql );
-        
-        Statement st = parse( sql );
-        if ( ! ( st instanceof Select ) )
+    }
+    
+
+    DBCursor query()
+        throws MongoSQLException {
+        if ( ! ( _statement instanceof Select ) )
             throw new IllegalArgumentException( "not a query sql statement" );
         
-        Select select = (Select)st;
+        Select select = (Select)_statement;
         if ( ! ( select.getSelectBody() instanceof PlainSelect ) )
             throw new UnsupportedOperationException( "can only handle PlainSelect so far" );
         
@@ -37,7 +44,7 @@ public class Executor {
         if ( ! ( ps.getFromItem() instanceof Table ) )
             throw new UnsupportedOperationException( "can only handle regular tables" );
         
-        DBCollection coll = db.getCollection( ((Table)ps.getFromItem()).toString() );
+        DBCollection coll = getCollection( (Table)ps.getFromItem() );
 
         BasicDBObject fields = new BasicDBObject();
         for ( Object o : ps.getSelectItems() ){
@@ -80,31 +87,27 @@ public class Executor {
         return c;
     }
 
-    static int writeop( DB db , String sql )
+    int writeop()
         throws MongoSQLException {
         
-        if ( D ) System.out.println( sql );
-        
-        Statement st = parse( sql );
-        if ( st instanceof Insert )
-            return insert( db , (Insert)st );
-        else if ( st instanceof Update )
-            return update( db , (Update)st );
-        else if ( st instanceof Drop )
-            return drop( db , (Drop)st );
+        if ( _statement instanceof Insert )
+            return insert( (Insert)_statement );
+        else if ( _statement instanceof Update )
+            return update( (Update)_statement );
+        else if ( _statement instanceof Drop )
+            return drop( (Drop)_statement );
 
-        throw new RuntimeException( "unknown write: " + st.getClass().toString() );
+        throw new RuntimeException( "unknown write: " + _statement.getClass() );
     }
     
-    static int insert( DB db , Insert in )
+    int insert( Insert in )
         throws MongoSQLException {
 
         if ( in.getColumns() == null )
             throw new MongoSQLException.BadSQL( "have to give column names to insert" );
         
-        DBCollection coll = db.getCollection( in.getTable().toString() );        
+        DBCollection coll = getCollection( in.getTable() );
         if ( D ) System.out.println( "\t" + "table: " + coll );
-
         
         if ( ! ( in.getItemsList() instanceof ExpressionList ) )
             throw new UnsupportedOperationException( "need ExpressionList" );
@@ -124,7 +127,7 @@ public class Executor {
         return 1; // TODO - this is wrong
     }
 
-    static int update( DB db , Update up )
+    int update( Update up )
         throws MongoSQLException {
         
         DBObject query = parseWhere( up.getWhere() );
@@ -139,20 +142,20 @@ public class Executor {
 
         DBObject mod = new BasicDBObject( "$set" , set );
 
-        DBCollection coll = db.getCollection( up.getTable().toString() );
+        DBCollection coll = getCollection( up.getTable() );
         coll.update( query , mod );
         return 1; // TODO
     }
 
-    static int drop( DB db , Drop d ){
-        DBCollection c = db.getCollection( d.getName() );
+    int drop( Drop d ){
+        DBCollection c = _db.getCollection( d.getName() );
         c.drop();
         return 1;
     }
 
     // ---- helpers -----
 
-    static String toFieldName( Expression e ){
+    String toFieldName( Expression e ){
         if ( e instanceof StringValue )
             return e.toString();
         if ( e instanceof Column )
@@ -160,7 +163,7 @@ public class Executor {
         throw new UnsupportedOperationException( "can't turn [" + e + "] " + e.getClass() + " into field name" );
     }
 
-    static Object toConstant( Expression e ){
+    Object toConstant( Expression e ){
         if ( e instanceof StringValue )
             return ((StringValue)e).getValue();
         else if ( e instanceof DoubleValue )
@@ -173,7 +176,7 @@ public class Executor {
     }
 
 
-    static DBObject parseWhere( Expression e ){
+    DBObject parseWhere( Expression e ){
         BasicDBObject o = new BasicDBObject();
         if ( e == null )
             return o;
@@ -189,7 +192,7 @@ public class Executor {
         return o;
     }
 
-    static Statement parse( String s )
+    Statement parse( String s )
         throws MongoSQLException {
         s = s.trim();
         
@@ -202,5 +205,15 @@ public class Executor {
         }
         
     }
+
+    // ----
+    
+    DBCollection getCollection( Table t ){
+        return _db.getCollection( t.toString() );
+    }
+
+    final DB _db;
+    final String _sql;
+    final Statement _statement;
     
 }
