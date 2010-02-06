@@ -13,6 +13,7 @@ import net.sf.jsqlparser.statement.*;
 import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.insert.*;
 import net.sf.jsqlparser.statement.update.*;
+import net.sf.jsqlparser.statement.drop.*;
 
 import com.mongodb.*;
 
@@ -89,6 +90,8 @@ public class Executor {
             return insert( db , (Insert)st );
         else if ( st instanceof Update )
             return update( db , (Update)st );
+        else if ( st instanceof Drop )
+            return drop( db , (Drop)st );
 
         throw new RuntimeException( "unknown write: " + st.getClass().toString() );
     }
@@ -141,6 +144,12 @@ public class Executor {
         return 1; // TODO
     }
 
+    static int drop( DB db , Drop d ){
+        DBCollection c = db.getCollection( d.getName() );
+        c.drop();
+        return 1;
+    }
+
     // ---- helpers -----
 
     static String toFieldName( Expression e ){
@@ -188,6 +197,7 @@ public class Executor {
             return (new CCJSqlParserManager()).parse( new StringReader( s ) );
         }
         catch ( Exception e ){
+            e.printStackTrace();
             throw new MongoSQLException.BadSQL( s );
         }
         

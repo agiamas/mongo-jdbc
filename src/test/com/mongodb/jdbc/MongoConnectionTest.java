@@ -91,5 +91,44 @@ public class MongoConnectionTest extends Base {
         stmt.close();
         
     }
+
+    @Test
+    public void testBasic3()
+        throws SQLException {
+        
+        String name = "connbasic3";
+
+        Statement stmt = _conn.createStatement();
+        
+        stmt.executeUpdate( "drop table " + name );
+
+        stmt.executeUpdate( "insert into " + name + " ( x , y ) values ( 1 , 'foo' )" );
+        stmt.executeUpdate( "insert into " + name + " ( y , x ) values ( 'bar' , 2 )" );
+        
+        ResultSet res = stmt.executeQuery( "select * from " + name + " order by x" );
+        assertTrue( res.next() );
+        assertEquals( 1 , res.getInt("x" ) );
+        assertEquals( "foo" , res.getString("y" ) );
+        assertTrue( res.next() );
+        assertEquals( 2 , res.getInt("x" ) );
+        assertEquals( "bar" , res.getString("y" ) );
+        assertFalse( res.next() );
+        res.close();
+        
+        stmt.executeUpdate( "update " + name + " set x=3 where y='foo' " );
+        res = stmt.executeQuery( "select * from " + name + " order by x" );
+        assertTrue( res.next() );
+        assertEquals( 2 , res.getInt("x" ) );
+        assertEquals( "bar" , res.getString("y" ) );
+        assertTrue( res.next() );
+        assertEquals( 3 , res.getInt("x" ) );
+        assertEquals( "foo" , res.getString("y" ) );
+        assertFalse( res.next() );
+        res.close();
+        
+        stmt.close();
+        
+    }
+
     
 }
