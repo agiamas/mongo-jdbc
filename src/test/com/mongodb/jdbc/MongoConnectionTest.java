@@ -2,6 +2,7 @@
 
 package com.mongodb.jdbc;
 
+import java.util.*;
 import java.sql.*;
 import com.mongodb.*;
 import org.testng.annotations.Test;
@@ -128,6 +129,35 @@ public class MongoConnectionTest extends Base {
         
         stmt.close();
         
+    }
+
+
+    @Test
+    public void testEmbed1()
+        throws SQLException {
+        
+        String name = "connembed1";
+        DBCollection coll = _db.getCollection( name );
+        
+        Statement stmt = _conn.createStatement();
+        stmt.executeUpdate( "drop table " + name );
+
+        coll.insert( BasicDBObjectBuilder.start( "x" , 1 ).add( "y" , new BasicDBObject( "z" , 2 ) ).get() );
+        coll.insert( BasicDBObjectBuilder.start( "x" , 11 ).add( "y" , new BasicDBObject( "z" , 12 ) ).get() );
+        
+        ResultSet res = stmt.executeQuery( "select * from " + name + " order by x" );
+        assertTrue( res.next() );
+        assertEquals( 1 , res.getInt("x" ) );
+        assertEquals( 2 , ((Map)(res.getObject( "y" ))).get( "z" ) );
+        assertTrue( res.next() );
+        res.close();
+        
+        res = stmt.executeQuery( "select * from " + name + " where y.z=12 order by x" );
+        assertTrue( res.next() );
+        assertEquals( 11 , res.getInt("x" ) );
+        assertEquals( 12 , ((Map)(res.getObject( "y" ))).get( "z" ) );
+        assertFalse( res.next() );
+        res.close();
     }
 
     
