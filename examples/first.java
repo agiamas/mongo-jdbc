@@ -8,7 +8,7 @@ public class first {
         throws SQLException {
         System.out.println( name );
         while ( res.next() ){
-            System.out.println( "\t" + res.getString( "name" ) + "\t" + res.getInt( "age" ) );
+            System.out.println( "\t" + res.getString( "name" ) + "\t" + res.getInt( "age" ) + "\t" + res.getObject(0) );
         }
     }
 

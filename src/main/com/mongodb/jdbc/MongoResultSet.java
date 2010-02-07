@@ -464,9 +464,13 @@ public class MongoResultSet implements ResultSet {
 
 
     public Object getObject(int columnIndex){
+        if ( columnIndex == 0 )
+            return _cur;
         return getObject( _find( columnIndex ) );
     }
     public Object getObject(int i, Map map){
+        if ( i == 0 )
+            return _cur;
         return getObject( _find( i ) , map );
     }
     public Object getObject(String columnName){
