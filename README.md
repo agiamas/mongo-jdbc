@@ -10,6 +10,7 @@ See examples/ for more info, ideas.
 
 Home: http://github.com/erh/mongo-jdbc/
 
+License: Apache 2
 
 ### Supported
  - SELECT
