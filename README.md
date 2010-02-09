@@ -22,6 +22,8 @@ License: Apache 2
  - DROP
 
 ### TODO
+ - create index
  - insert & getLastError
- - embedded objects
+ - embedded objects  (foo.bar)
  - prepared statements
+ - (s|g)etObject( 0 )
